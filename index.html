@@ -9,7 +9,7 @@
     :root {
       --bg: #000000;
       --text: #ffffff;
-      --card-bg: #ff008c42;
+      --card-bg: #ff009042;
       --date-pick-text: #ececec;
       --radius: 10px;
       --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -58,6 +58,11 @@
       outline-offset: 2px;
     }
 
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) sepia(1) saturate(5) hue-rotate(180deg);
+      cursor: pointer;
+    }
+
     .result {
       margin-top: 1rem;
       padding: 1.2rem;
@@ -77,18 +82,22 @@
       white-space: pre;
     }
 
-    #result_years{
+    #result_years {
       color: #ffffff !important;
     }
+
     #result_months {
       color: #00ffff !important;
     }
+
     #result_days {
       color: #66ff00 !important;
     }
+
     #result_hours {
       color: #ff8800 !important;
     }
+
     #result_minutes {
       color: #0088ff !important;
     }
