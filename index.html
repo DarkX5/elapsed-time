@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Elapsed Time</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background: #000000;
+      color: #afafaf;
+    }
+    h1 { margin-bottom: 10px; }
+    input[type="date"] {
+      padding: 5px;
+      font-size: 16px;
+      background-color: #afafaf;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      background: #afafaf;
+      color: #000000;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calculate Elapsed Time</h1>
+  <label for="datePicker">Pick date:</label>
+  <input type="date" id="datePicker">
+
+  <div class="result" id="result">
+    Pick a date to calcutate elapsed time.
+  </div>
+
+  <script>
+    const datePicker = document.getElementById("datePicker");
+    const resultDiv = document.getElementById("result");
+
+    // Încarcă data salvată
+    const savedDate = localStorage.getItem("chosenDate");
+    if (savedDate) {
+      datePicker.value = savedDate;
+      updateResult();
+    }
+
+    // Salvează data nouă și calculează timpul
+    datePicker.addEventListener("change", () => {
+      localStorage.setItem("chosenDate", datePicker.value);
+      updateResult();
+    });
+
+    function updateResult() {
+      const chosenDate = new Date(datePicker.value);
+      if (isNaN(chosenDate)) {
+        resultDiv.textContent = "Chosen date is invalid.";
+        return;
+      }
+
+      const now = new Date();
+      if (chosenDate > now) {
+        resultDiv.textContent = "Chosen date is in the future.";
+        return;
+      }
+
+      let years = now.getFullYear() - chosenDate.getFullYear();
+      let months = now.getMonth() - chosenDate.getMonth();
+      let days = now.getDate() - chosenDate.getDate();
+      let hours = now.getHours() - chosenDate.getHours();
+      let minutes = now.getMinutes() - chosenDate.getMinutes();
+
+      // Normalizează diferențele negative
+      if (minutes < 0) {
+        minutes += 60;
+        hours--;
+      }
+      if (hours < 0) {
+        hours += 24;
+        days--;
+      }
+      if (days < 0) {
+        // Zilele din luna anterioară
+        const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+        days += prevMonth;
+        months--;
+      }
+      if (months < 0) {
+        months += 12;
+        years--;
+      }
+
+      resultDiv.textContent = 
+        `${years} years, ${months} months, ${days} days, ${hours} hours, ${minutes} minutes`;
+    }
+
+    // Actualizează la fiecare minut
+    setInterval(updateResult, 60000);
+  </script>
+</body>
+</html>
