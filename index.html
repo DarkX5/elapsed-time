@@ -1,39 +1,107 @@
 <!DOCTYPE html>
 <html lang="ro">
+
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Elapsed Time</title>
   <style>
+    :root {
+      --bg: #000000;
+      --text: #ffffff;
+      --card-bg: #ff008c42;
+      --date-pick-text: #ececec;
+      --radius: 10px;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
     body {
       font-family: Arial, sans-serif;
-      margin: 30px;
-      background: #000000;
-      color: #afafaf;
+      margin: 0;
+      padding: 1.5rem;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
-    h1 { margin-bottom: 10px; }
+
+    h1 {
+      margin-bottom: 1rem;
+      font-size: 1.6rem;
+      text-align: center;
+    }
+
+    label {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      display: block;
+      text-align: center;
+    }
+
     input[type="date"] {
-      padding: 5px;
-      font-size: 16px;
-      background-color: #afafaf;
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      background-color: var(--card-bg);
+      color: var(--date-pick-text);
+      border: none;
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+      width: 100%;
+      max-width: 320px;
+      box-sizing: border-box;
     }
+
+    input[type="date"]:focus {
+      outline: 2px solid #ffffff;
+      outline-offset: 2px;
+    }
+
     .result {
-      margin-top: 20px;
-      padding: 10px;
-      background: #afafaf;
-      color: #000000;
-      border-radius: 6px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      font-size: 18px;
+      margin-top: 1rem;
+      padding: 1.2rem;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      font-size: 1.1rem;
+      width: 100%;
+      max-width: 400px;
+      text-align: left;
+      display: inline-block;
+      font-family: "Courier New", monospace;
+      font-weight: bold;
+    }
+
+    .result div {
+      white-space: pre;
+    }
+
+    #result_years{
+      color: #ffffff !important;
+    }
+    #result_months {
+      color: #00ffff !important;
+    }
+    #result_days {
+      color: #66ff00 !important;
+    }
+    #result_hours {
+      color: #ff8800 !important;
+    }
+    #result_minutes {
+      color: #0088ff !important;
     }
   </style>
 </head>
+
 <body>
   <h1>Calculate Elapsed Time</h1>
   <label for="datePicker">Pick date:</label>
   <input type="date" id="datePicker">
 
   <div class="result" id="result">
-    Pick a date to calcutate elapsed time.
+    Pick a date to calculate elapsed time.
   </div>
 
   <script>
@@ -82,7 +150,6 @@
         days--;
       }
       if (days < 0) {
-        // Zilele din luna anterioară
         const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
         days += prevMonth;
         months--;
@@ -92,12 +159,18 @@
         years--;
       }
 
-      resultDiv.textContent = 
-        `${years} years, ${months} months, ${days} days, ${hours} hours, ${minutes} minutes`;
+      resultDiv.innerHTML = `
+        <div id='result_years'>${years.toString().padStart(2, " ")} years</div>
+        <div id='result_months'>${months.toString().padStart(2, " ")} months</div>
+        <div id='result_days'>${days.toString().padStart(2, " ")} days</div>
+        <div id='result_hours'>${hours.toString().padStart(2, " ")} hours</div>
+        <div id='result_minutes'>${minutes.toString().padStart(2, " ")} minutes</div>
+      `;
     }
 
     // Actualizează la fiecare minut
     setInterval(updateResult, 60000);
   </script>
 </body>
+
 </html>
