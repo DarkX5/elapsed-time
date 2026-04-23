@@ -33,34 +33,48 @@
       text-align: center;
     }
 
-    label {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      display: block;
-      text-align: center;
+    .date-pickers {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      width: 100%;
+      max-width: 400px;
     }
 
-    input[type="date"] {
-      padding: 0.8rem 1rem;
+    .date-field {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+
+    .date-field label {
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+      color: #cccccc;
+    }
+
+    .date-field input[type="number"] {
+      width: 100%;
+      padding: 0.8rem 0.5rem;
       font-size: 1rem;
+      text-align: center;
       background-color: var(--card-bg);
       color: var(--date-pick-text);
       border: none;
       border-radius: var(--radius);
-      margin-bottom: 1.5rem;
-      width: 100%;
-      max-width: 320px;
       box-sizing: border-box;
+      -moz-appearance: textfield;
     }
 
-    input[type="date"]:focus {
+    .date-field input[type="number"]::-webkit-inner-spin-button,
+    .date-field input[type="number"]::-webkit-outer-spin-button {
+      opacity: 0.4;
+    }
+
+    .date-field input[type="number"]:focus {
       outline: 2px solid #ffffff;
       outline-offset: 2px;
-    }
-
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1) sepia(1) saturate(5) hue-rotate(180deg);
-      cursor: pointer;
     }
 
     .result {
@@ -106,33 +120,76 @@
 
 <body>
   <h1>Calculate Elapsed Time</h1>
-  <label for="datePicker">Pick date:</label>
-  <input type="date" id="datePicker">
+
+  <div class="date-pickers">
+    <div class="date-field">
+      <label for="pickYear">Year</label>
+      <input type="number" id="pickYear" min="1900" max="2500">
+    </div>
+    <div class="date-field">
+      <label for="pickMonth">Month</label>
+      <input type="number" id="pickMonth" min="1" max="12">
+    </div>
+    <div class="date-field">
+      <label for="pickDay">Day</label>
+      <input type="number" id="pickDay" min="1" max="31">
+    </div>
+  </div>
 
   <div class="result" id="result">
     Pick a date to calculate elapsed time.
   </div>
 
   <script>
-    const datePicker = document.getElementById("datePicker");
+    const pickYear = document.getElementById("pickYear");
+    const pickMonth = document.getElementById("pickMonth");
+    const pickDay = document.getElementById("pickDay");
     const resultDiv = document.getElementById("result");
 
-    // Încarcă data salvată
+    const today = new Date();
     const savedDate = localStorage.getItem("chosenDate");
+
     if (savedDate) {
-      datePicker.value = savedDate;
+      const [y, m, d] = savedDate.split("-").map(Number);
+      pickYear.value = y;
+      pickMonth.value = m;
+      pickDay.value = d;
+    } else {
+      pickYear.value = today.getFullYear();
+      pickMonth.value = today.getMonth() + 1;
+      pickDay.value = today.getDate();
+    }
+
+    updateResult();
+
+    [pickYear, pickMonth, pickDay].forEach(el => {
+      el.addEventListener("change", saveAndUpdate);
+      el.addEventListener("input", saveAndUpdate);
+    });
+
+    function saveAndUpdate() {
+      const y = parseInt(pickYear.value);
+      const m = parseInt(pickMonth.value);
+      const d = parseInt(pickDay.value);
+      if (y && m && d) {
+        const pad = (n, len) => String(n).padStart(len, "0");
+        localStorage.setItem("chosenDate", `${pad(y, 4)}-${pad(m, 2)}-${pad(d, 2)}`);
+      }
       updateResult();
     }
 
-    // Salvează data nouă și calculează timpul
-    datePicker.addEventListener("change", () => {
-      localStorage.setItem("chosenDate", datePicker.value);
-      updateResult();
-    });
-
     function updateResult() {
-      const chosenDate = new Date(datePicker.value);
-      if (isNaN(chosenDate)) {
+      const y = parseInt(pickYear.value);
+      const m = parseInt(pickMonth.value);
+      const d = parseInt(pickDay.value);
+
+      if (!y || !m || !d) {
+        resultDiv.textContent = "Pick a date to calculate elapsed time.";
+        return;
+      }
+
+      const chosenDate = new Date(y, m - 1, d);
+      if (isNaN(chosenDate) || chosenDate.getMonth() !== m - 1) {
         resultDiv.textContent = "Chosen date is invalid.";
         return;
       }
@@ -149,24 +206,14 @@
       let hours = now.getHours() - chosenDate.getHours();
       let minutes = now.getMinutes() - chosenDate.getMinutes();
 
-      // Normalizează diferențele negative
-      if (minutes < 0) {
-        minutes += 60;
-        hours--;
-      }
-      if (hours < 0) {
-        hours += 24;
-        days--;
-      }
+      if (minutes < 0) { minutes += 60; hours--; }
+      if (hours < 0) { hours += 24; days--; }
       if (days < 0) {
         const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
         days += prevMonth;
         months--;
       }
-      if (months < 0) {
-        months += 12;
-        years--;
-      }
+      if (months < 0) { months += 12; years--; }
 
       resultDiv.innerHTML = `
         <div id='result_years'>${years.toString().padStart(2, " ")} years</div>
@@ -177,7 +224,6 @@
       `;
     }
 
-    // Actualizează la fiecare minut
     setInterval(updateResult, 60000);
   </script>
 </body>
